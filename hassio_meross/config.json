@@ -17,20 +17,20 @@
     "meross": {
       "email": "",
       "password": ""
+    }
+  },
+  "schema": {
+    "mqtt": {
+      "host": "str",
+      "port": "port",
+      "protocol": "match(^(mqtt|mqtts|ws|wss)$)"
     },
-    "schema": {
-      "mqtt": {
-        "host": "str",
-        "port": "port",
-        "protocol": "match(^(mqtt|mqtts|ws|wss)$)"
-      },
-      "topic": {
-        "discovery_prefix": "str"
-      },
-      "meross": {
-        "email": "str",
-        "password": "str"
-      }
+    "topic": {
+      "discovery_prefix": "str"
+    },
+    "meross": {
+      "email": "str",
+      "password": "str"
     }
   }
 }
