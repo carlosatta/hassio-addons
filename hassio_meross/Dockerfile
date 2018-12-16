@@ -12,6 +12,5 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN chmod a+x /run.sh
 
 CMD [ "/run.sh" ]
