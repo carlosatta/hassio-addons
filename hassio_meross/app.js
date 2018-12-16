@@ -4,7 +4,7 @@ const MerossCloud = require('meross-cloud');
 const mqtt = require('mqtt')
 const mqtt_regex = require("mqtt-regex");
 
-const options = require('./options.json');
+const options = require('/options.json');
 
 const client  = mqtt.connect(options.mqtt)
 const meross = new MerossCloud(options.meross);
