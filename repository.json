@@ -1,4 +1,5 @@
 {
   "name": "MEROSS mqtt autodiscovery addons",
+  "url": "https://github.com/carlosatta/hassio-addons.git",
   "maintainer": "Carlo Satta <sattacarlo@gmail.com>"
 }
