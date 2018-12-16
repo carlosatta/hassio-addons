@@ -5,13 +5,15 @@ USER root
 ENV LANG C.UTF-8
 RUN apk add --no-cache nodejs nodejs-npm
 
-WORKDIR /data
+WORKDIR /usr/src/hassio_meross
     
 COPY package*.json ./
 
 RUN npm install
 
-COPY . .
-RUN chmod a+x /data/run.sh
+COPY app.js .
 
-CMD [ "/data/run.sh" ]
+COPY run.sh /
+RUN chmod a+x /run.sh
+
+CMD [ "/run.sh" ]
