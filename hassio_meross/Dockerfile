@@ -13,4 +13,6 @@ RUN npm install
 
 COPY . .
 
+CMD ["ls", "/usr/src/hassio_meross"]
+
 CMD [ "npm", "start" ]
