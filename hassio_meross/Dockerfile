@@ -11,6 +11,8 @@ COPY package*.json ./
 
 RUN npm install
 
+COPY run.sh /
+
 COPY . .
 
-CMD [ "npm", "start" ]
+CMD [ "/run.sh" ]
