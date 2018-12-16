@@ -1,0 +1,17 @@
+{
+  "name": "hassio_meross",
+  "version": "1.0.0",
+  "description": "Hassio addon for Meross device using MQTT and autodiscovery.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Carlo Satta <sattacarlo@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "meross-cloud": "^0.3.2",
+    "mqtt": "^2.18.8",
+    "mqtt-regex": "^1.0.5"
+  }
+}
