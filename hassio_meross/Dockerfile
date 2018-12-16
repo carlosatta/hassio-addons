@@ -5,7 +5,7 @@ USER root
 ENV LANG C.UTF-8
 RUN apk add --no-cache nodejs nodejs-npm
 
-WORKDIR /usr/src/hassio_meross
+WORKDIR /data
     
 COPY package*.json ./
 
