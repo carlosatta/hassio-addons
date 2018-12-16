@@ -1,13 +1,10 @@
-
-
 {
   "name": "Hassio Meross",
   "version": "0.4",
   "slug": "hassio_meross",
   "description": "Hassio addon for Meross device using MQTT and autodiscovery.",
   "startup": "once",
-  "boot": "manual",
-  "map": ["config"],
+  "boot": "auto",
   "options": {
     "mqtt": {
       "host": "",
@@ -20,7 +17,20 @@
     "meross": {
       "email": "",
       "password": ""
+    },
+    "schema": {
+      "mqtt": {
+        "host": "str",
+        "port": "port",
+        "protocol": "match(^(mqtt|mqtts|ws|wss)$)"
+      },
+      "topic": {
+        "discovery_prefix": "str"
+      },
+      "meross": {
+        "email": "str",
+        "password": "str"
+      }
     }
-  },
-  "image": "hub/{arch}-hassio_meross"
+  }
 }
