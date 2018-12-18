@@ -56,12 +56,12 @@ client.on('message', function (topic, message) {
       console.debug(`Device ${params.id} configured ${message.toString()}.`);
       break;
     case 'command':
-    console.debug(`Device ${params.id} recive a command ${message.toString()}.`);
+      console.debug(`Device ${params.id} recive a command ${message.toString()}.`);
       setSwitchStatus(params.id, booleanStatus(message.toString()));
       break;
 
     case 'state':
-      console.debug(`Device ${params.id} chenge status ${message.toString()}.`);
+      console.debug(`Device ${params.id} change status ${message.toString()}.`);
       break;
 
     default:
@@ -111,7 +111,6 @@ function sendSwitchStatus(id) {
 }
 
 function setSwitchStatus(id, state) {
-  console.log(id, state);
   let device = meross.getDevice(id);
   device.controlToggleX(0, state);
 }
@@ -135,7 +134,9 @@ function setSwitchConfig(definition) {
 function booleanStatus(string) {
   return [ 
     1,
+    '1',
     true,
+    'true',
     'True',
     'TRUE',
     'yes',
