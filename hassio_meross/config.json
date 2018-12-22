@@ -35,7 +35,7 @@
       "email": "str",
       "password": "str"
     },
-    "device": {
+    "devices": {
       "refresh": "int"
     }
   }
