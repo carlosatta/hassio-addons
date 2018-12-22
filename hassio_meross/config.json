@@ -1,6 +1,6 @@
 {
   "name": "Hassio Meross",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "slug": "hassio_meross",
   "description": "Hassio addon for Meross device using MQTT and autodiscovery.",
   "startup": "once",
@@ -17,6 +17,9 @@
     "meross": {
       "email": "",
       "password": ""
+    },
+    "devices": {
+      "refresh": 10000
     }
   },
   "schema": {
@@ -31,6 +34,9 @@
     "meross": {
       "email": "str",
       "password": "str"
+    },
+    "device": {
+      "refresh": "int"
     }
   }
 }

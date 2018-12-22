@@ -42,15 +42,14 @@ meross.on('deviceInitialized', (deviceId, deviceDef, device) => {
     });
 
     device.on('data', (namespace, payload) => {
-      // console.log('Data', deviceId, namespace, payload);
-      
       switch (namespace) {
         case 'Appliance.Control.ToggleX':
           sendSwitchStatus(deviceId, payload);   
           break;
       
         default:
-          console.log(deviceId, namespace, payload);
+          console.warn(`Unsupported ability ${namespace} for the divice ${deviceId}.`);
+          console.debug(payload);
           break;
       }      
     });
@@ -70,19 +69,19 @@ client.on('message', function (topic, message) {
 
   switch(params.action) {
     case 'config':
-      // console.debug(`Device ${params.id} configured ${JSON.stringify(message)}.`);
+      console.debug(`Device ${params.id} configured ${JSON.stringify(message)}.`);
       break;
     case 'command':
-      // console.debug(`Device ${params.id} recive a command ${JSON.stringify(message)}.`);
+      console.debug(`Device ${params.id} recive a command ${JSON.stringify(message)}.`);
       setSwitchStatus(params.id, params.channel, booleanStatus(message));
       break;
 
     case 'state':
-      // console.debug(`Device ${params.id} change status ${JSON.stringify(message)}.`);
+      console.debug(`Device ${params.id} change status ${JSON.stringify(message)}.`);
       break;
 
     default:
-      // console.warn(`Device ${params.id} recive a unknow message ${JSON.stringify(message)}.`);
+      console.warn(`Device ${params.id} send a unknow message ${JSON.stringify(message)}.`);
       break;
   }
   
@@ -91,20 +90,62 @@ client.on('message', function (topic, message) {
 function manageDevice(definition, device = null) {  
   for (let channel in definition.channels) {
     let name = definition.channels[channel].devName ? `${definition.devName} - ${definition.channels[channel].devName}` : `${definition.devName}`;
-    let config = setSwitchConfig(name, definition.uuid, channel);
-    manageSubscriptionDevice(definition.uuid, channel, config)
-  }
+    let config = createSwitchConfig(name, definition.uuid, channel);
+    manageSubscriptionSwitchDevice(definition.uuid, channel, config);
 
-  if (device) {    
-    device.getSystemAllData((err, info) => {
-      sendSwitchStatus(definition.uuid, info.all.digest);
+    if (device) {    
+      device.getSystemAllData((err, info) => {
+        if(err || !info || !info.all || !info.all.digest) return;
+        sendSwitchStatus(definition.uuid, info.all.digest);
+      });
+    }
+
+
+    device.getSystemAbilities((err, info) => {
+
+      if(err || !info || !info.ability) return;
+      
+      if (info.ability['Appliance.Control.ConsumptionX']) {
+        device.getControlPowerConsumptionX((err, info) => {
+          let config = createSensorConfig(name, definition.uuid, 'consumption');
+          manageSubscriptionSensorDevice(definition.uuid, 'consumption', config);
+          sendSensorConsumption(definition.uuid, info);
+        });
+
+        setInterval(() => {
+          device.getControlPowerConsumptionX((err, info) => {
+            sendSensorConsumption(definition.uuid, info);
+          });
+        }, options.devices.refresh);
+      }
+
+
+      if (info.ability['Appliance.Control.Electricity']) {
+        device.getControlElectricity((err, info) => {
+          if(err || !info || !info.electricity || !info.electricity.length) return;
+
+          for (let type in info.electricity) {
+            if (type === 'channel') {
+              continue;
+            }
+            let config = createSensorConfig(name, definition.uuid, type);
+            manageSubscriptionSensorDevice(definition.uuid, type, config);
+            sendSensorEletricity(definition.uuid, info);
+          }
+        });
+      }
+
+      setInterval(() => {
+        device.getControlElectricity((err, info) => {
+          sendSensorEletricity(definition.uuid, info);
+        });
+      }, options.devices.refresh);
+
     });
   }
-  
-  
 }
 
-function manageSubscriptionDevice(uuid, channel, config) {
+function manageSubscriptionSwitchDevice(uuid, channel, config) {
   client.publish(`${options.topic.discovery_prefix}/switch/${uuid}_${channel}/config`, JSON.stringify(config), {
     qos: 2,
     retain: true
@@ -123,9 +164,9 @@ function manageSubscriptionDevice(uuid, channel, config) {
   })
 }
 
-function sendSensorData() {}
-
 function sendSwitchStatus(id, status) {
+  if (!status || !status.togglex || !status.togglex.length) return;
+
   for (let info of status.togglex) {
     client.publish(`${options.topic.discovery_prefix}/switch/${id}_${info.channel}/state`, JSON.stringify({
       state: info.onoff
@@ -141,22 +182,106 @@ function setSwitchStatus(id, channel, state) {
   device.controlToggleX(channel, state);
 }
 
-function setSwitchConfig(name, uuid, channel) {
+function createSwitchConfig(name, uuid, channel) {
   return {
     name: name,
     command_topic:      `${options.topic.discovery_prefix}/switch/${uuid}_${channel}/command`,
     state_topic:        `${options.topic.discovery_prefix}/switch/${uuid}_${channel}/state`,
-    // availability_topic: `${options.topic.discovery_prefix}/switch/${uuid}_${channel}/status`,
     value_template:     '{{value_json.state}}',
     payload_on:         1,
     payload_off:        0,
     state_on:           1,
     state_off:          0,
+    // availability_topic: `${options.topic.discovery_prefix}/switch/${uuid}_${channel}/status`,
     // payload_available:  'Online',
     // payload_not_available:  'Offline'
   };
 }
 
+
+
+function createSensorConfig(name, uuid, type) {
+  return {
+    name: `${name} - ${type}`,
+    state_topic:        `${options.topic.discovery_prefix}/sensor/${uuid}_${type}/state`,
+    value_template:     typeToSymbol(type).template,
+    unit_of_measurement: typeToSymbol(type).unit,
+    // availability_topic: `${options.topic.discovery_prefix}/${uuid}_${type}/status`,
+    // payload_available:  'Online',
+    // payload_not_available:  'Offline'
+  };
+}
+
+function manageSubscriptionSensorDevice(uuid, type, config) {
+  client.publish(`${options.topic.discovery_prefix}/sensor/${uuid}_${type}/config`, JSON.stringify(config), {
+    qos: 2,
+    retain: true
+  });
+}
+
+function sendSensorEletricity(uuid, state) {
+  if (!state || !state.electricity) return;
+
+  for (let type in state.electricity) {
+    if (type === 'channel') {
+      continue;
+    }
+
+    client.publish(`${options.topic.discovery_prefix}/sensor/${uuid}_${type}/state`, JSON.stringify({
+      value: state.electricity[type]
+    }), {
+      qos: 2,
+      retain: true
+    });
+  }
+}
+
+function sendSensorConsumption(uuid, state) {
+  if (!state || !state.consumptionx ||!state.consumptionx.length) return;
+
+  let consumption = state.consumptionx.pop()
+  
+  client.publish(`${options.topic.discovery_prefix}/sensor/${uuid}_consumption/state`, JSON.stringify({
+    value: consumption.value
+  }), {
+    qos: 2,
+    retain: true
+  });
+}
+
+
+
+function typeToSymbol (type) {
+  switch (type) {
+    case 'power':
+      return {
+        unit: 'W',
+        template: '{{value_json.value | float / 1000 }}',
+      };
+      break;
+  
+    case 'current' :
+      return {
+        unit: 'A',
+        template: '{{value_json.value | float / 1000 }}',
+      };
+      break;
+
+    case 'voltage' :
+      return {
+        unit: 'V',
+        template: '{{value_json.value | float / 1000 }}',
+      };
+      break;
+
+    case 'consumption' :
+      return {
+        unit: 'kWh',
+        template: '{{value_json.value | float / 1000 }}',
+      };
+      break;
+  }
+}
 function booleanStatus(string) {
   return [ 
     1,
