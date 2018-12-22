@@ -17,7 +17,7 @@ meross.connect((error) => {
 })
 
 meross.on('connected', (deviceId) => {
-  // console.log(`Connected to the device ${deviceId}.`);
+  console.log(`Connected to the device ${deviceId}.`);
 });
 
 meross.on('error', (deviceId, error) => {
@@ -38,48 +38,79 @@ meross.on('reconnect', (deviceId) => {
 
 meross.on('deviceInitialized', (deviceId, deviceDef, device) => {
     device.on('connected', () => {
-      manageDevice(deviceDef)
+      manageDevice(deviceDef, device)
     });
 
     device.on('data', (namespace, payload) => {
-      sendSwitchStatus(deviceId);
+      // console.log('Data', deviceId, namespace, payload);
+      
+      switch (namespace) {
+        case 'Appliance.Control.ToggleX':
+          sendSwitchStatus(deviceId, payload);   
+          break;
+      
+        default:
+          console.log(deviceId, namespace, payload);
+          break;
+      }      
     });
 
 });
 
 client.on('message', function (topic, message) {
-  var topicReg = mqtt_regex('+prefix/+type/+id/+action').exec;
-  var params = topicReg(topic); 
-  
+
+  message = message.toString();
+  message = JSON.parse(message);
+
+  var topicReg = mqtt_regex('+prefix/+type/+elements/+action').exec;
+  var params = topicReg(topic);
+  let elements = params.elements.split('_');
+  params.id = elements[0];
+  params.channel = elements[1];  
+
   switch(params.action) {
     case 'config':
-      console.debug(`Device ${params.id} configured ${message.toString()}.`);
+      // console.debug(`Device ${params.id} configured ${JSON.stringify(message)}.`);
       break;
     case 'command':
-      console.debug(`Device ${params.id} recive a command ${message.toString()}.`);
-      setSwitchStatus(params.id, booleanStatus(message.toString()));
+      // console.debug(`Device ${params.id} recive a command ${JSON.stringify(message)}.`);
+      setSwitchStatus(params.id, params.channel, booleanStatus(message));
       break;
 
     case 'state':
-      console.debug(`Device ${params.id} change status ${message.toString()}.`);
+      // console.debug(`Device ${params.id} change status ${JSON.stringify(message)}.`);
       break;
 
     default:
-      console.warn(`Device ${params.id} recive a unknow message ${message.toString()}.`);
+      // console.warn(`Device ${params.id} recive a unknow message ${JSON.stringify(message)}.`);
       break;
   }
   
 });
 
-function manageDevice(definition) {
-  // console.log(definition)
-  let config = setSwitchConfig(definition);
-  client.publish(`${options.topic.discovery_prefix}/switch/${definition.uuid}/config`, JSON.stringify(config), {
+function manageDevice(definition, device = null) {  
+  for (let channel in definition.channels) {
+    let name = definition.channels[channel].devName ? `${definition.devName} - ${definition.channels[channel].devName}` : `${definition.devName}`;
+    let config = setSwitchConfig(name, definition.uuid, channel);
+    manageSubscriptionDevice(definition.uuid, channel, config)
+  }
+
+  if (device) {    
+    device.getSystemAllData((err, info) => {
+      sendSwitchStatus(definition.uuid, info.all.digest);
+    });
+  }
+  
+  
+}
+
+function manageSubscriptionDevice(uuid, channel, config) {
+  client.publish(`${options.topic.discovery_prefix}/switch/${uuid}_${channel}/config`, JSON.stringify(config), {
     qos: 2,
     retain: true
   });
 
-  client.subscribe(`${options.topic.discovery_prefix}/switch/${definition.uuid}/config`, function (err) {
+  client.subscribe(`${options.topic.discovery_prefix}/switch/${uuid}_${channel}/config`, function (err) {
     // console.error(err)
   })
 
@@ -90,37 +121,32 @@ function manageDevice(definition) {
   client.subscribe(`${config.state_topic}`, function (err) {
     // console.error(err)
   })
-
 }
 
 function sendSensorData() {}
 
-function sendSwitchStatus(id) {
-  let device = meross.getDevice(id);
-  device.getSystemAllData((err, data) => {
-    for(let channel of data.all.digest.togglex) {
-      // console.log(channel);
-      client.publish(`${options.topic.discovery_prefix}/switch/${id}/state`, JSON.stringify({
-        state: channel.onoff
-      }), {
-        qos: 2,
-        retain: true
-      });
-    }
-  });
+function sendSwitchStatus(id, status) {
+  for (let info of status.togglex) {
+    client.publish(`${options.topic.discovery_prefix}/switch/${id}_${info.channel}/state`, JSON.stringify({
+      state: info.onoff
+    }), {
+      qos: 2,
+      retain: true
+    });
+  }
 }
 
-function setSwitchStatus(id, state) {
+function setSwitchStatus(id, channel, state) {
   let device = meross.getDevice(id);
-  device.controlToggleX(0, state);
+  device.controlToggleX(channel, state);
 }
 
-function setSwitchConfig(definition) {
+function setSwitchConfig(name, uuid, channel) {
   return {
-    name: definition.devName,
-    command_topic:      `${options.topic.discovery_prefix}/switch/${definition.uuid}/command`,
-    state_topic:        `${options.topic.discovery_prefix}/switch/${definition.uuid}/state`,
-    // availability_topic: `${options.topic.discovery_prefix}/switch/${definition.uuid}/status`,
+    name: name,
+    command_topic:      `${options.topic.discovery_prefix}/switch/${uuid}_${channel}/command`,
+    state_topic:        `${options.topic.discovery_prefix}/switch/${uuid}_${channel}/state`,
+    // availability_topic: `${options.topic.discovery_prefix}/switch/${uuid}_${channel}/status`,
     value_template:     '{{value_json.state}}',
     payload_on:         1,
     payload_off:        0,
