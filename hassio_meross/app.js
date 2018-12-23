@@ -30,11 +30,9 @@ meross.on('close', (deviceId, error) => {
   console.error(error);
 });
 
-
 meross.on('reconnect', (deviceId) => {
   console.error(`Reconnection from the device ${deviceId}.`);
 });
-
 
 meross.on('deviceInitialized', (deviceId, deviceDef, device) => {
     device.on('connected', () => {
@@ -55,6 +53,7 @@ meross.on('deviceInitialized', (deviceId, deviceDef, device) => {
     });
 
 });
+
 
 client.on('message', function (topic, message) {
 
@@ -89,7 +88,8 @@ client.on('message', function (topic, message) {
 
 function manageDevice(definition, device = null) {  
   for (let channel in definition.channels) {
-    let name = definition.channels[channel].devName ? `${definition.devName} - ${definition.channels[channel].devName}` : `${definition.devName}`;
+    // let name = definition.channels[channel].devName ? `${definition.devName} - ${definition.channels[channel].devName}` : `${definition.devName}`;
+    let name = definition.channels[channel].devName;
     let config = createSwitchConfig(name, definition.uuid, channel);
     manageSubscriptionSwitchDevice(definition.uuid, channel, config);
 
@@ -165,7 +165,11 @@ function manageSubscriptionSwitchDevice(uuid, channel, config) {
 }
 
 function sendSwitchStatus(id, status) {
-  if (!status || !status.togglex || !status.togglex.length) return;
+  if (!status || !status.togglex) return;
+
+  if (!Array.isArray(status.togglex)) {
+    status.togglex = [status.togglex];
+  }
 
   for (let info of status.togglex) {
     client.publish(`${options.topic.discovery_prefix}/switch/${id}_${info.channel}/state`, JSON.stringify({
