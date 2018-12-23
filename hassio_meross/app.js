@@ -89,7 +89,7 @@ client.on('message', function (topic, message) {
 function manageDevice(definition, device = null) {  
   for (let channel in definition.channels) {
     // let name = definition.channels[channel].devName ? `${definition.devName} - ${definition.channels[channel].devName}` : `${definition.devName}`;
-    let name = definition.channels[channel].devName;
+    let name = definition.channels[channel].devName ? `${definition.channels[channel].devName}` : `${definition.devName}`;
     let config = createSwitchConfig(name, definition.uuid, channel);
     manageSubscriptionSwitchDevice(definition.uuid, channel, config);
 
