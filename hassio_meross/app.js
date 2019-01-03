@@ -6,6 +6,15 @@ const mqtt_regex = require("mqtt-regex");
 
 const options = require('./options.json');
 
+if(!options.mqtt.username || !options.mqtt.username.length) {
+  delete options.mqtt.username;
+}
+
+if(!options.mqtt.password || !options.mqtt.password.length) {
+  delete options.mqtt.password;
+}
+
+
 const client  = mqtt.connect(options.mqtt)
 const meross = new MerossCloud(options.meross);
 
