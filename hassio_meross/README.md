@@ -15,7 +15,7 @@ Probably  it's work with other devices.
 ## Instruction
 All the devices have to be  configured via the Meross app.
 
-The addons was created to work out of the box with [MQTT Discovery](https://www.home-assistant.io/docs/mqtt/discovery/), so I suggest to add at your *`configuration.yaml`* the following configurations:
+The addons was created to work out of the box with [MQTT Discovery](https://www.home-assistant.io/docs/mqtt/discovery/), so I suggest to add in your *`configuration.yaml`* the following configurations:
 
  ```
 Example configuration.yaml entry
@@ -27,17 +27,25 @@ mqtt:
 
 Edit the addons config:
 ### mqtt
-&nbsp;&nbsp;&nbsp;&nbsp;**host:** your mqtt host
-&nbsp;&nbsp;&nbsp;&nbsp;**port:** the mqtt port (Default: 1883)
-&nbsp;&nbsp;&nbsp;&nbsp;**protocol:** the protocol (mqtt|mqtts|ws|wss) (Default: mqtt)
+&nbsp;&nbsp;&nbsp;&nbsp;**host:** your mqtt host (required)
+
+&nbsp;&nbsp;&nbsp;&nbsp;**port:** the mqtt port (Default: 1883, required)
+
+&nbsp;&nbsp;&nbsp;&nbsp;**protocol:** the protocol (mqtt|mqtts|ws|wss) (Default: mqtt, required)
+
+&nbsp;&nbsp;&nbsp;&nbsp;**username:** the mqtt username, leave empty if not used (Default: mqtt)
+
+&nbsp;&nbsp;&nbsp;&nbsp;**password:** the mqtt password, leave empty if not used (Default: mqtt)
+
 &nbsp;&nbsp;&nbsp;&nbsp;**rejectUnauthorized:** If you are using a **self-signed certificate** (Default: false)
 ### topic
-&nbsp;&nbsp;&nbsp;&nbsp;**discovery_prefix:** the topic prefix. To use Discovery mqtt functionality have to be the same value of *discovery_prefix* set in home assistant configuration. (Default: homeassistant)
+&nbsp;&nbsp;&nbsp;&nbsp;**discovery_prefix:** the topic prefix. To use Discovery mqtt functionality have to be the same value of *discovery_prefix* set in home assistant configuration. (Default: homeassistant, required)
 ### meross
-&nbsp;&nbsp;&nbsp;&nbsp;**email:** the email used in the meross application
-&nbsp;&nbsp;&nbsp;&nbsp;**password:** the password used in the meross application
+&nbsp;&nbsp;&nbsp;&nbsp;**email:** the email used in the meross application (required)
+
+&nbsp;&nbsp;&nbsp;&nbsp;**password:** the password used in the meross application (required)
 ### devices
-&nbsp;&nbsp;&nbsp;&nbsp;**refresh:** the number of millisecond to refresh plugs statistics
+&nbsp;&nbsp;&nbsp;&nbsp;**refresh:** the number of millisecond to refresh plugs statistics (Default: 10000 (10 sec.), required)
 
 
 
