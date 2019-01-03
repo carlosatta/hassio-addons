@@ -156,8 +156,7 @@ function manageDevice(definition, device = null) {
 
 function manageSubscriptionSwitchDevice(uuid, channel, config) {
   client.publish(`${options.topic.discovery_prefix}/switch/${uuid}_${channel}/config`, JSON.stringify(config), {
-    qos: 2,
-    retain: true
+    qos: 2
   });
 
   client.subscribe(`${options.topic.discovery_prefix}/switch/${uuid}_${channel}/config`, function (err) {
@@ -184,8 +183,7 @@ function sendSwitchStatus(id, status) {
     client.publish(`${options.topic.discovery_prefix}/switch/${id}_${info.channel}/state`, JSON.stringify({
       state: info.onoff
     }), {
-      qos: 2,
-      retain: true
+      qos: 2
     });
   }
 }
@@ -227,8 +225,7 @@ function createSensorConfig(name, uuid, type) {
 
 function manageSubscriptionSensorDevice(uuid, type, config) {
   client.publish(`${options.topic.discovery_prefix}/sensor/${uuid}_${type}/config`, JSON.stringify(config), {
-    qos: 2,
-    retain: true
+    qos: 
   });
 }
 
@@ -243,8 +240,7 @@ function sendSensorEletricity(uuid, state) {
     client.publish(`${options.topic.discovery_prefix}/sensor/${uuid}_${type}/state`, JSON.stringify({
       value: state.electricity[type]
     }), {
-      qos: 2,
-      retain: true
+      qos: 2
     });
   }
 }
@@ -257,8 +253,7 @@ function sendSensorConsumption(uuid, state) {
   client.publish(`${options.topic.discovery_prefix}/sensor/${uuid}_consumption/state`, JSON.stringify({
     value: consumption.value
   }), {
-    qos: 2,
-    retain: true
+    qos: 
   });
 }
 
