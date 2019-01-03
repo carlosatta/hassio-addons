@@ -73,8 +73,8 @@ client.on('message', function (topic, message) {
   var params = topicReg(topic);
   let elements = params.elements.split('_');
   params.id = elements[0];
-  params.channel = elements[1];  
-
+  params.channel = elements[1]; 
+  
   switch(params.action) {
     case 'config':
       console.debug(`Device ${params.id} configured ${JSON.stringify(message)}.`);
@@ -97,7 +97,6 @@ client.on('message', function (topic, message) {
 
 function manageDevice(definition, device = null) {  
   for (let channel in definition.channels) {
-    // let name = definition.channels[channel].devName ? `${definition.devName} - ${definition.channels[channel].devName}` : `${definition.devName}`;
     let name = definition.channels[channel].devName ? `${definition.channels[channel].devName}` : `${definition.devName}`;
     let config = createSwitchConfig(name, definition.uuid, channel);
     manageSubscriptionSwitchDevice(definition.uuid, channel, config);
@@ -112,7 +111,7 @@ function manageDevice(definition, device = null) {
 
     device.getSystemAbilities((err, info) => {
 
-      if(err || !info || !info.ability) return;
+      if(err || !info || !info.ability) return;      
       
       if (info.ability['Appliance.Control.ConsumptionX']) {
         device.getControlPowerConsumptionX((err, info) => {
@@ -130,9 +129,8 @@ function manageDevice(definition, device = null) {
 
 
       if (info.ability['Appliance.Control.Electricity']) {
-        device.getControlElectricity((err, info) => {
-          if(err || !info || !info.electricity || !info.electricity.length) return;
-
+        device.getControlElectricity((err, info) => {  
+          if(err || !info || !info.electricity) return;
           for (let type in info.electricity) {
             if (type === 'channel') {
               continue;
@@ -156,7 +154,8 @@ function manageDevice(definition, device = null) {
 
 function manageSubscriptionSwitchDevice(uuid, channel, config) {
   client.publish(`${options.topic.discovery_prefix}/switch/${uuid}_${channel}/config`, JSON.stringify(config), {
-    qos: 2
+    qos: 2,
+    retain: true
   });
 
   client.subscribe(`${options.topic.discovery_prefix}/switch/${uuid}_${channel}/config`, function (err) {
@@ -182,9 +181,7 @@ function sendSwitchStatus(id, status) {
   for (let info of status.togglex) {
     client.publish(`${options.topic.discovery_prefix}/switch/${id}_${info.channel}/state`, JSON.stringify({
       state: info.onoff
-    }), {
-      qos: 2
-    });
+    }), {});
   }
 }
 
@@ -225,7 +222,8 @@ function createSensorConfig(name, uuid, type) {
 
 function manageSubscriptionSensorDevice(uuid, type, config) {
   client.publish(`${options.topic.discovery_prefix}/sensor/${uuid}_${type}/config`, JSON.stringify(config), {
-    qos: 
+    qos: 2,
+    retain: true
   });
 }
 
@@ -240,20 +238,20 @@ function sendSensorEletricity(uuid, state) {
     client.publish(`${options.topic.discovery_prefix}/sensor/${uuid}_${type}/state`, JSON.stringify({
       value: state.electricity[type]
     }), {
-      qos: 2
+      qos: 1
     });
   }
 }
 
 function sendSensorConsumption(uuid, state) {
-  if (!state || !state.consumptionx ||!state.consumptionx.length) return;
+  if (!state || !state.consumptionx || !state.consumptionx.length) return;
 
   let consumption = state.consumptionx.pop()
   
   client.publish(`${options.topic.discovery_prefix}/sensor/${uuid}_consumption/state`, JSON.stringify({
     value: consumption.value
   }), {
-    qos: 
+    qos: 1
   });
 }
 
