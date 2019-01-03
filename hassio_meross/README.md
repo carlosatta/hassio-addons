@@ -15,7 +15,7 @@ Probably  it's work with other devices.
 ## Instruction
 All the devices have to be  configured via the Meross app.
 
-The addons was created to work out of the box with [MQTT Discovery](https://www.home-assistant.io/docs/mqtt/discovery/), so I suggest to add at your *`configuration.yaml`* the following configurations:
+The addons was created to work out of the box with [MQTT Discovery](https://www.home-assistant.io/docs/mqtt/discovery/), so I suggest to add in your *`configuration.yaml`* the following configurations:
 
  ```
 Example configuration.yaml entry
