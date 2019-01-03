@@ -28,13 +28,17 @@ mqtt:
 Edit the addons config:
 ### mqtt
 &nbsp;&nbsp;&nbsp;&nbsp;**host:** your mqtt host
+
 &nbsp;&nbsp;&nbsp;&nbsp;**port:** the mqtt port (Default: 1883)
+
 &nbsp;&nbsp;&nbsp;&nbsp;**protocol:** the protocol (mqtt|mqtts|ws|wss) (Default: mqtt)
+
 &nbsp;&nbsp;&nbsp;&nbsp;**rejectUnauthorized:** If you are using a **self-signed certificate** (Default: false)
 ### topic
 &nbsp;&nbsp;&nbsp;&nbsp;**discovery_prefix:** the topic prefix. To use Discovery mqtt functionality have to be the same value of *discovery_prefix* set in home assistant configuration. (Default: homeassistant)
 ### meross
 &nbsp;&nbsp;&nbsp;&nbsp;**email:** the email used in the meross application
+
 &nbsp;&nbsp;&nbsp;&nbsp;**password:** the password used in the meross application
 ### devices
 &nbsp;&nbsp;&nbsp;&nbsp;**refresh:** the number of millisecond to refresh plugs statistics
