@@ -1,7 +1,7 @@
 # Hassio Meross integration
 
 ## About
-The purpose of **hassio-meross** is to provide an integration in **Home Assistant** form **Meross** devices. It’s works connecting to **Meross** API system and not directly to the devices.
+The purpose of **hassio-meross** is to provide an integration in **Home Assistant** for **Meross** devices. It’s works connecting to **Meross** API system and not directly to the devices.
 
 [![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
 
