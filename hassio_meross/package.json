@@ -10,8 +10,10 @@
   "author": "Carlo Satta <sattacarlo@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "circular-json": "^0.5.9",
     "meross-cloud": "^0.3.2",
     "mqtt": "^2.18.8",
-    "mqtt-regex": "^1.0.5"
+    "mqtt-regex": "^1.0.5",
+    "q": "^1.5.1"
   }
 }
