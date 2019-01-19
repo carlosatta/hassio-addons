@@ -12,6 +12,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY app.js .
+COPY lib/ .
 
 COPY run.sh /
 RUN chmod a+x /run.sh
