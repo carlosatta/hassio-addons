@@ -12,7 +12,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY app.js .
-COPY lib/ .
+COPY lib /usr/src/hassio_meross/lib
 
 COPY run.sh /
 RUN chmod a+x /run.sh
