@@ -1,6 +1,6 @@
 {
   "name": "Hassio Meross",
-  "version": "0.0.19",
+  "version": "0.1.0",
   "slug": "hassio_meross",
   "description": "Hassio addon for Meross device using MQTT and autodiscovery.",
   "startup": "once",
