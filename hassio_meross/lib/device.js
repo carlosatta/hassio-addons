@@ -20,10 +20,14 @@ class Device {
     this.meross.on('data', (namespace, payload) => {
       switch (namespace) {
         case 'Appliance.Control.Toggle':
+          console.log(error);
+          console.log('DEVICE ----------', this.name, namespace, JSON.stringify(payload));
+          break;
+          
         case 'Appliance.Control.ToggleX':
           try {
             if (!Array.isArray(payload.togglex)) {
-              payload.togglex = [payload.togglex];
+              payload.togglex = [payload.togglex]; // TODO: togglex. what about toggle?
             }
             payload.togglex.map((info) => {
               this.switchs[info.channel ? info.channel : 0].state = info.onoff;

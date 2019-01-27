@@ -50,11 +50,16 @@ class Switch extends Channel{
     console.log(`    [${this.type}][${this.name}] Preparation.`);
 
     await mqtt.publish(`${this.mqtt.baseTopic}/command`, '');
-    await mqtt.publish(`${this.mqtt.baseTopic}/state`, '');
 
     try {
       let info = await this.getSystemAllData();
-      this.state = info.all.digest.togglex[this.id].onoff;
+      if (info.all.digest.togglex.onoff) {
+        this.state = info.all.digest.togglex[this.id].onoff;
+      }
+
+      if (info.all.control.toggle) {
+        this.state = info.all.digest.togglex.onoff;
+      }
     } catch (error) {
       console.warn(`[WARN][${this.type}][${this.name}] Impossibile retrieve real status: ${error.message}.`);
       this.state = 0;
@@ -106,6 +111,10 @@ class Switch extends Channel{
 
   controlToggle(state) {
     const deferred = q.defer();
+    this.device.meross.getSystemAbilities((error, abilities) => {
+      console.log(error);
+      console.log('SWITCH ----------', this.name, JSON.stringify(abilities));
+    });
     this.device.meross.controlToggleX(this.id, state, (error, response) => {
       if (error) {
         deferred.reject(error);
