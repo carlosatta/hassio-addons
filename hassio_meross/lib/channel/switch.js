@@ -109,18 +109,48 @@ class Switch extends Channel{
     return deferred.promise;
   }
 
-  controlToggle(state) {
+  getSystemAbilities() {
     const deferred = q.defer();
-    this.device.meross.getSystemAbilities((error, abilities) => {
-      console.log(error);
-      console.log('SWITCH ----------', this.name, JSON.stringify(abilities));
-    });
-    this.device.meross.controlToggleX(this.id, state, (error, response) => {
+    this.device.meross.getSystemAbilities((error, response) => {
       if (error) {
         deferred.reject(error);
       }
       deferred.resolve(response);
     });
+    return deferred.promise;
+  }
+
+  
+
+  async controlToggle(state) {
+    const deferred = q.defer();
+    try {
+      let abilities = await this.getSystemAbilities();
+      
+      if (abilities.ability['Appliance.Control.ToggleX']) {
+        this.device.meross.controlToggleX(this.id, state, (error, response) => {
+          if (error) {
+            deferred.reject(error);
+          }
+          deferred.resolve(response);
+        });
+        return ;
+      }
+
+      if (abilities.ability['Appliance.Control.Toggle']) {
+        this.device.meross.controlToggleX(state, (error, response) => {
+          if (error) {
+            deferred.reject(error);
+          }
+          deferred.resolve(response);
+        });
+        return 
+      }
+
+    } catch (error) {
+      console.warn(`[WARN][${this.type}][${this.name}] Impossibile to toggle the device: ${error.message}.`);
+    }
+    
     return deferred.promise;  
   }
 
