@@ -33,9 +33,9 @@ Edit the addons config:
 
 &nbsp;&nbsp;&nbsp;&nbsp;**protocol:** the protocol (mqtt|mqtts|ws|wss) (Default: mqtt, required)
 
-&nbsp;&nbsp;&nbsp;&nbsp;**username:** the mqtt username, leave empty if not used (Default: mqtt)
+&nbsp;&nbsp;&nbsp;&nbsp;**username:** the mqtt username, leave empty if not used (Default: null)
 
-&nbsp;&nbsp;&nbsp;&nbsp;**password:** the mqtt password, leave empty if not used (Default: mqtt)
+&nbsp;&nbsp;&nbsp;&nbsp;**password:** the mqtt password, leave empty if not used (Default: null)
 
 &nbsp;&nbsp;&nbsp;&nbsp;**rejectUnauthorized:** If you are using a **self-signed certificate** (Default: false)
 ### topic

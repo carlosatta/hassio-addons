@@ -8,7 +8,6 @@ RUN npm install pm2 -g
 
 WORKDIR /usr/src/hassio_meross
 
-    
 COPY package*.json ./
 
 RUN npm install
@@ -19,5 +18,4 @@ COPY lib /usr/src/hassio_meross/lib
 COPY run.sh /
 RUN chmod a+x /run.sh
 
-# CMD [ "/run.sh" ]
-CMD ["pm2-runtime", "app.js"]
+CMD [ "/run.sh" ]

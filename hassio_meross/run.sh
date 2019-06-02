@@ -1,2 +1,2 @@
 cp /data/options.json .
-npm start
+pm2-runtime app.js
